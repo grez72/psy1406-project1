@@ -1,8 +1,8 @@
-# lab-demo
+# psy1406-project1
 
-Demonstration of how to use mybinder.org
+Template for PSY1406 Project #1
 
-https://mybinder.org/v2/gh/grez72/psy1406-project01/master
+https://mybinder.org/v2/gh/grez72/psy1406-project1/master
 
 # starting from this example:
 
