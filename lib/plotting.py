@@ -23,6 +23,18 @@ alexnet_pytorch_blocks = OrderedDict([
     ('fc8', ['classifier.6']),
 ])
 
+def plot_results(df):
+    pair_names = []
+    for i, row in df.iterrows():
+        img1 = row.image1.replace(".jpg","").replace(".png","").replace(".tiff","")
+        img2 = row.image2.replace(".jpg","").replace(".png","").replace(".tiff","")
+        pair_name = img1 + "_" + img2
+        pair_names.append(pair_name)
+    df['pair_name'] = pair_names    
+    ax = sns.barplot(x="pair_name", y="euclidean_distance", data=df)
+    ax.set_title("Euclidean Distance Between Pairs (larger = more different)", fontsize=20)
+    return ax;
+
 def plot_df(df, pairs=[0,1,2], title='', blocks=None, legend_loc=(0.25, 0.80), group_by='pair_num', ceiling=1, ylabel='correlation', legend_color=(0.95,0.95,0.95,1.0)):
     
     if pairs is None:

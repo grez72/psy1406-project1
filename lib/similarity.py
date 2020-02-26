@@ -7,7 +7,44 @@ from torchvision import transforms
 from . import nethook as nethook
 from .data import ImageListDataset
 import torch
+from facenet_pytorch import MTCNN, InceptionResnetV1
 
+def compute_embeddings(dataset):
+    print(f"Computing Embeddings (N={len(dataset)} images)")
+    cache = {}
+    mtcnn = MTCNN(image_size=160)
+    resnet = InceptionResnetV1(pretrained='vggface2').eval()
+    
+    embeddings = []
+    embedding = []
+    for idx, (img, label, index) in enumerate(progress_bar(dataset)):
+        
+        # Get cropped and prewhitened image tensor
+        img_cropped = mtcnn(img)
+
+        # Calculate embedding (unsqueeze to add batch dimension)
+        img_embedding = resnet(img_cropped.unsqueeze(0))
+        
+        embedding.append(img_embedding)
+        
+        if len(embedding) == 2:
+            embeddings.append(embedding)
+            embedding = []
+    
+    return embeddings
+
+def compare_embeddings(embeddings, image_pairs):
+    df = pd.DataFrame(columns=['pair_num','image1','image2','euclidean_distance'])
+    
+    for pair_num, ((embed1, embed2), (image1, image2)) in enumerate(zip(embeddings, image_pairs)):
+        df = df.append({
+            "pair_num": pair_num,
+            "image1": image1,
+            "image2": image2, 
+            "euclidean_distance": (embed1-embed2).pow(2).sum().item()
+        }, ignore_index=True)
+        
+    return df
 
 def get_layer(m, layers):
     layer = layers.pop(0)
