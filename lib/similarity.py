@@ -8,6 +8,12 @@ from . import nethook as nethook
 from .data import ImageListDataset
 import torch
 from facenet_pytorch import MTCNN, InceptionResnetV1
+from IPython.core.debugger import set_trace
+
+tfrm = transforms.Compose([
+    transforms.CenterCrop(160),
+    transforms.ToTensor()
+])
 
 def compute_embeddings(dataset):
     print(f"Computing Embeddings (N={len(dataset)} images)")
@@ -21,7 +27,10 @@ def compute_embeddings(dataset):
         
         # Get cropped and prewhitened image tensor
         img_cropped = mtcnn(img)
-
+        if img_cropped is None:
+            print("Warning, no human face detected, using center crop:", dataset.files[idx])
+            img_cropped = tfrm(img)
+            
         # Calculate embedding (unsqueeze to add batch dimension)
         img_embedding = resnet(img_cropped.unsqueeze(0))
         
